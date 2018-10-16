@@ -19,11 +19,20 @@ import java.util.HashMap;
 
 public class QuestionDetailActivity extends AppCompatActivity {
 
+    // TODO  ログインしている場合に質問詳細画面に「お気に入り」ボタンを表示させる
+    // やること
+    // ①ログインしているかどうかbool変数で保持
+    // -> アダプターに真偽値をいれて渡す
+
+
     private ListView mListView;
     private Question mQuestion;
     private QuestionDetailListAdapter mAdapter;
 
     private DatabaseReference mAnswerRef;
+
+    private Boolean isLogin;
+
 
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
@@ -78,11 +87,23 @@ public class QuestionDetailActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         mQuestion = (Question) extras.get("question");
 
-        setTitle(mQuestion.getTitle());
+//        setTitle(mQuestion.getTitle());
+
+        // ジャンル名に変更
+        setTitle(getGenreName(mQuestion.getGenre()));
+
+        // ログインしているかどうか判定
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user != null ){ // ログインしている
+            isLogin = true;
+        }else{ // ログインしていない
+            isLogin = false;
+        }
 
         // ListViewの準備
         mListView = (ListView) findViewById(R.id.listView);
-        mAdapter = new QuestionDetailListAdapter(this, mQuestion);
+        mAdapter = new QuestionDetailListAdapter(this, mQuestion,isLogin);
         mListView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
@@ -109,5 +130,21 @@ public class QuestionDetailActivity extends AppCompatActivity {
         DatabaseReference dataBaseReference = FirebaseDatabase.getInstance().getReference();
         mAnswerRef = dataBaseReference.child(Const.ContentsPATH).child(String.valueOf(mQuestion.getGenre())).child(mQuestion.getQuestionUid()).child(Const.AnswersPATH);
         mAnswerRef.addChildEventListener(mEventListener);
+    }
+
+    public String getGenreName(int mGenre){
+
+        if(mGenre == 1){
+            return "趣味";
+        } else if (mGenre == 2){
+            return "生活";
+        } else if (mGenre == 3){
+            return "健康";
+        } else if(mGenre == 4){
+            return "コンピューター";
+        }
+
+        return "趣味"; // 一旦"趣味"で返す
+
     }
 }

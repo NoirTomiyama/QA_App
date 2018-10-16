@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,9 +20,14 @@ public class QuestionDetailListAdapter extends BaseAdapter {
     private LayoutInflater mLayoutInflater = null;
     private Question mQustion;
 
-    public QuestionDetailListAdapter(Context context, Question question) {
+    private Boolean mIsLogin; // ログインしているかどうか
+    private Boolean mIsClick = false; // ハートボタンがクリックされたかどうか
+
+
+    public QuestionDetailListAdapter(Context context, Question question,Boolean isLogin) {
         mLayoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mQustion = question;
+        mIsLogin = isLogin;
     }
 
     @Override
@@ -56,16 +63,35 @@ public class QuestionDetailListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         if (getItemViewType(position) == TYPE_QUESTION) {
+
             if (convertView == null) {
                 convertView = mLayoutInflater.inflate(R.layout.list_question_detail, parent, false);
             }
+
+            final ImageView likeButton = convertView.findViewById(R.id.like_button);
+
+            if (mIsLogin){
+                // ハートの表示
+                likeButton.setVisibility(View.VISIBLE);
+            }else{
+                // ハートの非表示
+                likeButton.setVisibility(View.INVISIBLE);
+            }
+
+            // TODO タイトルとお気に入りの数の取得
+            // お気に入り数は一旦保留
+
+            String title = mQustion.getTitle();
             String body = mQustion.getBody();
             String name = mQustion.getName();
 
-            TextView bodyTextView = (TextView) convertView.findViewById(R.id.bodyTextView);
+            TextView titleTextView = convertView.findViewById(R.id.titleTextView);
+            titleTextView.setText(title);
+
+            TextView bodyTextView = convertView.findViewById(R.id.bodyTextView);
             bodyTextView.setText(body);
 
-            TextView nameTextView = (TextView) convertView.findViewById(R.id.nameTextView);
+            TextView nameTextView = convertView.findViewById(R.id.nameTextView);
             nameTextView.setText(name);
 
             byte[] bytes = mQustion.getImageBytes();
@@ -74,6 +100,31 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                 ImageView imageView = (ImageView) convertView.findViewById(R.id.imageView);
                 imageView.setImageBitmap(image);
             }
+
+
+
+            // いいねボタンの処理
+            likeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    if(mIsClick){ // クリックされていたら
+                        likeButton.setImageResource(R.drawable.heart_gray);
+                        mIsClick = !mIsClick;
+                        // いいねリストから削除
+                    }else{
+                        likeButton.setImageResource(R.drawable.heart_pink);
+                        mIsClick = !mIsClick;
+                        // アニメーション
+                        Animation animation = AnimationUtils.loadAnimation(view.getContext(),R.anim.like_touch);
+                        likeButton.startAnimation(animation);
+                        // いいねリストの保持
+                    }
+
+                }
+            });
+
+
         } else {
             if (convertView == null) {
                 convertView = mLayoutInflater.inflate(R.layout.list_answer, parent, false);

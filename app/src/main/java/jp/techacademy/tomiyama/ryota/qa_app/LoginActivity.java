@@ -46,6 +46,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+        // Firebaseの初期化
         mDataBaseReference = FirebaseDatabase.getInstance().getReference();
 
         // FirebaseAuthのオブジェクトを取得する
@@ -64,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     // 失敗した場合
                     // エラーを表示する
-                    // TODO ここがわからん
+                    // contentからViewとるのはやり方の一種
                     View view = findViewById(android.R.id.content);
                     Snackbar.make(view, "アカウント作成に失敗しました", Snackbar.LENGTH_LONG).show();
 
@@ -82,13 +84,12 @@ public class LoginActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     // 成功した場合
                     FirebaseUser user = mAuth.getCurrentUser();
-                    // ここ曖昧
+                    // ここ曖昧 -> OK
                     DatabaseReference userRef = mDataBaseReference.child(Const.UsersPATH).child(user.getUid());
 
                     if (mIsCreateAccount) {
                         // アカウント作成の時は表示名をFirebaseに保存する
                         String name = mNameEditText.getText().toString();
-
 
                         Map<String, String> data = new HashMap<String, String>();
                         data.put("name", name);
@@ -97,11 +98,12 @@ public class LoginActivity extends AppCompatActivity {
                         // 表示名をPrefarenceに保存する
                         saveName(name);
                     } else {
+                        // TODO 名前変わったことを検知して，入れ直している？
                         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
                                 Map data = (Map) snapshot.getValue();
-                                saveName((String)data.get("name"));
+                                saveName((String)data.get("name"));//TODO
                             }
                             @Override
                             public void onCancelled(DatabaseError firebaseError) {

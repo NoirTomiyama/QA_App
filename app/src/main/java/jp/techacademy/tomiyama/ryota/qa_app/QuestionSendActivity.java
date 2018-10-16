@@ -94,6 +94,7 @@ public class QuestionSendActivity extends AppCompatActivity implements View.OnCl
             Uri uri = (data == null || data.getData() == null) ? mPictureUri : data.getData();
 
             // URIからBitmapを取得する
+            // TODO mPictureUriがnullの可能性は？
             Bitmap image;
             try {
                 ContentResolver contentResolver = getContentResolver();
