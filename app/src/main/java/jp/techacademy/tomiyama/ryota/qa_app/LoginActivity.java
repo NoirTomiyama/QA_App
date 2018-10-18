@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                         // 表示名をPrefarenceに保存する
                         saveName(name);
                     } else {
-                        // TODO 名前変わったことを検知して，入れ直している？
+                        // TODO 名前変わったことを検知して，入れ直している
                         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {

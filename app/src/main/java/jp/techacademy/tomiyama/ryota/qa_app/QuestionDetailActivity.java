@@ -132,6 +132,8 @@ public class QuestionDetailActivity extends AppCompatActivity {
         mAnswerRef.addChildEventListener(mEventListener);
     }
 
+
+    // ジャンル名を返すメソッド
     public String getGenreName(int mGenre){
 
         if(mGenre == 1){
