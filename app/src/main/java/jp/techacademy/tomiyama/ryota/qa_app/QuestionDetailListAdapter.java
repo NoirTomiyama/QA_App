@@ -115,19 +115,14 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                 likeButton.setVisibility(View.INVISIBLE);
             }
 
-            // TODO タイトルとお気に入りの数の取得
+            // タイトルとお気に入りの数の取得
             // お気に入り数は一旦保留
 
-            // TODO getViewしてきた際に，いいね済みかどうか判定
+            // getViewしてきた際に，いいね済みかどうか判定
             // userのfavoritesのなかに，今のQuestionのidがあるかどうか判断
             // いいね済みならmIsClick変数をtrueにしないといけない
 
             mIsClick = false;
-
-            // いいね済みかどうか判断
-            // 変更した表示名をPreferenceに保存する
-//            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
-//            mIsClick = sp.getBoolean(mQustion.getUid(), false);
 
             // firebaseの初期化
             DatabaseReference mDataBaseReference = FirebaseDatabase.getInstance().getReference();
@@ -183,13 +178,6 @@ public class QuestionDetailListAdapter extends BaseAdapter {
 //
 //                }
 //            });
-
-
-//            if(mIsClick){
-//                likeButton.setImageResource(R.drawable.heart_pink);
-//            }else{
-//                likeButton.setImageResource(R.drawable.heart_gray);
-//            }
 
             // いいねボタンの処理
             likeButton.setOnClickListener(new View.OnClickListener() {
