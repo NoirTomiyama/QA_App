@@ -6,4 +6,11 @@
     <string name="show_name">表示名</string>
     <string name="login">ログイン</string>
     <string name="make_account">アカウント作成</string>
+    <string name="hobby">趣味</string>
+    <string name="life">生活</string>
+    <string name="health">健康</string>
+    <string name="computer">コンピューター</string>
+    <string name="favorite">お気に入り</string>
+
+
 </resources>

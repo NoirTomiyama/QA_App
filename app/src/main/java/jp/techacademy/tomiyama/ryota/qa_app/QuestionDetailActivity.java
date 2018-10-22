@@ -24,7 +24,6 @@ public class QuestionDetailActivity extends AppCompatActivity {
     // ①ログインしているかどうかbool変数で保持
     // -> アダプターに真偽値をいれて渡す
 
-
     private ListView mListView;
     private Question mQuestion;
     private QuestionDetailListAdapter mAdapter;
@@ -77,6 +76,7 @@ public class QuestionDetailActivity extends AppCompatActivity {
 
         }
     };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +132,26 @@ public class QuestionDetailActivity extends AppCompatActivity {
         mAnswerRef.addChildEventListener(mEventListener);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // ログインしているかどうか判定
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user != null ){ // ログインしている
+            isLogin = true;
+            mAdapter = new QuestionDetailListAdapter(this, mQuestion,isLogin);
+            mListView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
+        }else{ // ログインしていない
+            isLogin = false;
+            mAdapter = new QuestionDetailListAdapter(this, mQuestion,isLogin);
+            mListView.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
 
     // ジャンル名を返すメソッド
     public String getGenreName(int mGenre){
@@ -146,7 +166,7 @@ public class QuestionDetailActivity extends AppCompatActivity {
             return "コンピューター";
         }
 
-        return "趣味"; // 一旦"趣味"で返す
+        return "QA_App";
 
     }
 }

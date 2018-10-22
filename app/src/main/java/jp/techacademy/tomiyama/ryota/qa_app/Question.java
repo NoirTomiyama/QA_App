@@ -8,7 +8,7 @@ public class Question implements Serializable {
     private String mTitle;
     private String mBody;
     private String mName;
-    private String mUid; // ?
+    private String mUid; // uniqueId
     private String mQuestionUid;
     private int mGenre;
     private byte[] mBitmapArray;

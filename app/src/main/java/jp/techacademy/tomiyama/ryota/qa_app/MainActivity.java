@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +45,10 @@ public class MainActivity extends AppCompatActivity
     private ChildEventListener mEventListener = new ChildEventListener() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            String mKey = dataSnapshot.getKey();
+            Log.d("mEventListener.key",mKey);
+
             HashMap map = (HashMap) dataSnapshot.getValue();
             String title = (String) map.get("title");
             String body = (String) map.get("body");
@@ -151,6 +156,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+
         // ナビゲーションドロワーの設定
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name);
@@ -179,6 +185,19 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // ログイン済みのユーザーを取得する
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        // ここで表示・非表示の切り替え
+        Menu menu = navigationView.getMenu();
+        MenuItem menuItem = menu.findItem(R.id.nav_favorite);
+
+        if (user == null){
+            menuItem.setVisible(false);
+        }else{
+            menuItem.setVisible(true);
+        }
+
     }
 
     @Override
@@ -190,6 +209,23 @@ public class MainActivity extends AppCompatActivity
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             onNavigationItemSelected(navigationView.getMenu().getItem(0));
         }
+
+        // ログイン済みのユーザーを取得する
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        // ここで表示・非表示の切り替え
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu menu = navigationView.getMenu();
+        MenuItem menuItem = menu.findItem(R.id.nav_favorite);
+
+
+        if (user == null){
+            menuItem.setVisible(false);
+        }else{
+            menuItem.setVisible(true);
+        }
+
+
     }
 
     @Override
@@ -232,9 +268,14 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_compter) {
             mToolbar.setTitle("コンピューター");
             mGenre = 4;
+        } else if (id == R.id.nav_favorite){
+//            mToolbar.setTitle("お気に入り");
+            Intent intent = new Intent(getApplicationContext(),FavoritesActivity.class);
+            startActivity(intent);
+            return false;
         }
 
-        // TODO ここの部分を調べる
+        // TODO ここの部分を調べる -> 解決
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 

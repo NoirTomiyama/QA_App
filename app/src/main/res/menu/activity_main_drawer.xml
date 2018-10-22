@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_hobby"
-            android:title="趣味"/>
+            android:title="@string/hobby" />
         <item
             android:id="@+id/nav_life"
-            android:title="生活"/>
+            android:title="@string/life" />
         <item
             android:id="@+id/nav_health"
-            android:title="健康"/>
+            android:title="@string/health" />
         <item
             android:id="@+id/nav_compter"
-            android:title="コンピューター"/>
+            android:title="@string/computer" />
+        <item
+            android:id="@+id/nav_favorite"
+            android:title="@string/favorite" />
     </group>
 </menu>

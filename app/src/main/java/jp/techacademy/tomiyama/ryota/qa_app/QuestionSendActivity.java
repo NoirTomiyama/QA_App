@@ -91,10 +91,11 @@ public class QuestionSendActivity extends AppCompatActivity implements View.OnCl
             }
 
             // 画像を取得
+            // カメラかカメラロールからか
             Uri uri = (data == null || data.getData() == null) ? mPictureUri : data.getData();
 
             // URIからBitmapを取得する
-            // TODO mPictureUriがnullの可能性は？
+
             Bitmap image;
             try {
                 ContentResolver contentResolver = getContentResolver();

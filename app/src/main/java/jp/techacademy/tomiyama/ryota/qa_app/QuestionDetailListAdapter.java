@@ -1,8 +1,11 @@
 package jp.techacademy.tomiyama.ryota.qa_app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +37,7 @@ public class QuestionDetailListAdapter extends BaseAdapter {
     private Question mQustion;
 
     private Boolean mIsLogin; // ログインしているかどうか
-    private Boolean mIsClick = false; // ハートボタンがクリックされたかどうか
+    private Boolean mIsClick;// ハートボタンがクリックされたかどうか
 
 
     public QuestionDetailListAdapter(Context context, Question question,Boolean isLogin) {
@@ -81,20 +84,6 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                 convertView = mLayoutInflater.inflate(R.layout.list_question_detail, parent, false);
             }
 
-            final ImageView likeButton = convertView.findViewById(R.id.like_button);
-
-            if (mIsLogin){
-                // ハートの表示
-                likeButton.setVisibility(View.VISIBLE);
-            }else{
-                // ハートの非表示
-                likeButton.setVisibility(View.INVISIBLE);
-            }
-
-            // TODO タイトルとお気に入りの数の取得
-            // お気に入り数は一旦保留
-            // TODO インテントしてきた際に，いいね済みかどうか判定
-            // いいね済みならmIsClick変数をtrueにしないといけない
 
             String title = mQustion.getTitle();
             String body = mQustion.getBody();
@@ -116,6 +105,91 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                 imageView.setImageBitmap(image);
             }
 
+            final ImageView likeButton = convertView.findViewById(R.id.like_button);
+
+            if (mIsLogin){
+                // ハートの表示
+                likeButton.setVisibility(View.VISIBLE);
+            }else{
+                // ハートの非表示
+                likeButton.setVisibility(View.INVISIBLE);
+            }
+
+            // TODO タイトルとお気に入りの数の取得
+            // お気に入り数は一旦保留
+
+            // TODO getViewしてきた際に，いいね済みかどうか判定
+            // userのfavoritesのなかに，今のQuestionのidがあるかどうか判断
+            // いいね済みならmIsClick変数をtrueにしないといけない
+
+            mIsClick = false;
+
+            // いいね済みかどうか判断
+            // 変更した表示名をPreferenceに保存する
+//            final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
+//            mIsClick = sp.getBoolean(mQustion.getUid(), false);
+
+            // firebaseの初期化
+            DatabaseReference mDataBaseReference = FirebaseDatabase.getInstance().getReference();
+            // FirebaseAuthのオブジェクトを取得する
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            // ログインしているユーザーの取得
+            FirebaseUser user = mAuth.getCurrentUser();
+
+            DatabaseReference userRef = null;
+
+            if(user != null){
+//                userRef = mDataBaseReference.child(Const.UsersPATH).child(user.getUid()).child(Const.FavoritesPATH).child(mQustion.getQuestionUid());
+                userRef = mDataBaseReference.child(Const.FavoritesPATH).child(user.getUid()).child(mQustion.getQuestionUid());
+
+                userRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        HashMap map = (HashMap) dataSnapshot.getValue();
+                        if(map != null) {
+                            Log.d("genre",String.valueOf(map.get("genre")));
+                            mIsClick = true;
+                            likeButton.setImageResource(R.drawable.heart_pink);
+
+                        }else{
+                            Log.d("genre","なにもありません");
+                            mIsClick = false;
+                            likeButton.setImageResource(R.drawable.heart_gray);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+//            // 実験
+//            DatabaseReference userRef2 = mDataBaseReference.child(Const.UsersPATH).child(user.getUid()).child(Const.FavoritesPATH);
+//
+//            userRef2.addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    HashMap map = (HashMap) dataSnapshot.getValue();
+//
+//                    for (Object str : map.keySet()) {
+//                        System.out.println(str + ":" + map.get(str));
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                }
+//            });
+
+
+//            if(mIsClick){
+//                likeButton.setImageResource(R.drawable.heart_pink);
+//            }else{
+//                likeButton.setImageResource(R.drawable.heart_gray);
+//            }
 
             // いいねボタンの処理
             likeButton.setOnClickListener(new View.OnClickListener() {
@@ -130,28 +204,21 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                     // ログインしているユーザーの取得
                     FirebaseUser user = mAuth.getCurrentUser();
 
-                    DatabaseReference userRef = mDataBaseReference.child(Const.UsersPATH).child(user.getUid()).child(Const.FavoritesPATH);
 
                     if(mIsClick){ // クリックされていたら
                         likeButton.setImageResource(R.drawable.heart_gray);
                         mIsClick = !mIsClick;
                         // TODO いいねリストから削除
 
-                        Query favoriteQuery = userRef.orderByChild("question_uid").equalTo(mQustion.getQuestionUid());
+//                        DatabaseReference userRef = mDataBaseReference.child(Const.UsersPATH).child(user.getUid()).child(Const.FavoritesPATH).child(mQustion.getQuestionUid());
+                        DatabaseReference userRef = mDataBaseReference.child(Const.FavoritesPATH).child(user.getUid()).child(mQustion.getQuestionUid());
 
-                        favoriteQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot favariteSnapshot: dataSnapshot.getChildren()) {
-                                    favariteSnapshot.getRef().removeValue();
-                                }
-                            }
+                        userRef.removeValue();
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.d("Tag", "onCancelled", databaseError.toException());
-                            }
-                        });
+//                        SharedPreferences.Editor editor = sp.edit();
+//                        editor.putBoolean(mQustion.getUid(),false);
+//                        editor.commit();
+
 
                     }else{
                         likeButton.setImageResource(R.drawable.heart_pink);
@@ -161,10 +228,18 @@ public class QuestionDetailListAdapter extends BaseAdapter {
                         likeButton.startAnimation(animation);
 
                         // TODO いいねリストの登録
-                        Map<String, String> data = new HashMap<String, String>();
-                        data.put("question_uid", mQustion.getQuestionUid());
-                        userRef.push().setValue(data); // pushいれるかどうか?
-//                        userRef.setValue(data);
+//                        DatabaseReference userRef = mDataBaseReference.child(Const.UsersPATH).child(user.getUid()).child(Const.FavoritesPATH).child(mQustion.getQuestionUid());
+                        DatabaseReference userRef = mDataBaseReference.child(Const.FavoritesPATH).child(user.getUid()).child(mQustion.getQuestionUid());
+
+                        Map<String, Integer> data = new HashMap<String, Integer>();
+                        data.put("genre", mQustion.getGenre());
+
+                        userRef.setValue(data);
+
+//                        SharedPreferences.Editor editor = sp.edit();
+//                        editor.putBoolean(mQustion.getUid(),true);
+//                        editor.commit();
+
                     }
                 }
             });
